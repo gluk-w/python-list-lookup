@@ -51,18 +51,18 @@ class UploadCommand(Command):
         sys.exit()
 
 
-readme = open('README.rst').read()
+readme = open('README.md').read()
 # history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 history = ''
 
 setup(
-    name='tuple-lookup',
+    name='list-lookup',
     version=about['__version__'],
-    description="""Wrapper for a tuple of objects that allows to create indexes for faster lookups """,
+    description="""Wrapper for a list of objects that allows to create indexes for faster lookups """,
     long_description=readme + '\n\n' + history,
     author='Stan Misiurev',
     author_email='smisiurev@gmail.com',
-    url='https://github.com/gluk-w/python-tuple-lookup',
+    url='https://github.com/gluk-w/python-list-lookup',
     packages=[
         'listlookup',
     ],
@@ -70,7 +70,7 @@ setup(
     install_requires=['setuptools'],
     license="MIT",
     zip_safe=False,
-    keywords='tuple lookup indexing list',
+    keywords='lookup indexing list',
     classifiers=[
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',

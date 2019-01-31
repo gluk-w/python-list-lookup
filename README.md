@@ -1,12 +1,10 @@
-# TupleLookup
-Wrapper for faster lookups in a tuple of objects/dictionaries.
-
-## Why tuple instead of a list
-Because tuples are immutable
+# ListLookup
+Wrapper for faster lookups in a list of objects/dictionaries.
+**ATTENTION** Do not modify list once index are created!
 
 ```
-from tuple_lookup import TupleLookup
-cities = TupleLookup([
+from listlookup import ListLookup
+cities = ListLookup([
   {"id": 1, "country": "us", name: "Atlanta"},
   {"id": 2, "country": "us", name: "Miami"},
   {"id": 3, "country": "uk", name: "Britain"},
@@ -15,12 +13,12 @@ cities = TupleLookup([
 cities.index("id", lambda d: d['id'], True)
 cities.index("country", lambda d: d['country'])
 
-cities.lookup(id=1)
+list(cities.lookup(id=1))
 >>> [{"id": 1, "country": "us", name: "Atlanta"}]
 
-cities.lookup(country="us")
+list(cities.lookup(country="us", preserve_order=True))
 >>> [{"id": 1, "country": "us", name: "Atlanta"}, {"id": 2, "country": "us", name: "Miami"}]
 
-cities.lookup(id=2, country="uk")
+list(cities.lookup(id=2, country="uk"))
 >>> []
 ```
