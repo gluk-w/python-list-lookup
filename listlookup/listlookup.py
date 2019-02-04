@@ -38,7 +38,18 @@ class ListLookup(list):
     def lookup(self, preserve_order=True, **kwargs):
         pointers = None
         for index_name, value in kwargs.items():
-            res = self._lookup_index(index_name, value)
+            try:
+                index = self._indexes[index_name]
+            except KeyError:
+                raise RuntimeError("Index %s does not exist" % index_name)
+
+            unique = (index_name in self._unique_indexes)
+
+            if callable(value):
+                res = self._lookup_index_callable(index, value, unique)
+            else:
+                res = self._lookup_index(index, value, unique)
+
             if pointers is None:
                 pointers = res
             else:
@@ -49,18 +60,21 @@ class ListLookup(list):
         for i in pointers:
             yield self[i]
 
-    def _lookup_index(self, index_name, value):
-        try:
-            index = self._indexes[index_name]
-        except KeyError:
-            raise RuntimeError("Index %s does not exist" % index_name)
-
+    def _lookup_index(self, index, value, unique):
         try:
             pointers = index[value]
         except KeyError:
             return None
 
-        unique = (index_name in self._unique_indexes)
         if unique:
             return set([pointers])
+        return pointers
+
+    def _lookup_index_callable(self, index, func, unique):
+        pointers = set()
+        for val, idx in index.items():
+            if func(val) is True:
+                pointers |= idx
+                if unique:
+                    break
         return pointers
