@@ -50,6 +50,9 @@ class ListLookup(list):
             else:
                 res = self._lookup_index(index, value, unique)
 
+            if res is None:
+                return  # terminate if any index returned nothing
+
             if pointers is None:
                 pointers = res
             else:

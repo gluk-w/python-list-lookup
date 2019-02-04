@@ -27,3 +27,20 @@ cities.index('name', lambda d: d['name'])
 list(cities.lookup(name=lambda val: val.startswith('B'))
 >>> [{"id": 3, "country": "uk", name: "Britain"}, {"id": 4, "country": "ca", "name": "Barrie"}]
 ```
+
+## Case insensitive index
+This is not supported out of the box. You need to use same case for index and lookup values. E.g. use `.lower()`
+```
+from listlookup import ListLookup
+cities = ListLookup([
+  {"id": 1, "country": "us", name: "Atlanta"},
+  {"id": 2, "country": "us", name: "Miami"},
+  {"id": 3, "country": "uk", name: "Britain"},
+  {"id": 4, "country": "ca", "name": "Barrie"},
+])
+
+cities.index("country_ci", lambda d: d['country'].lower())
+
+list(cities.lookup(country_ci="UK".lower()))
+>>> [{"id": 3, "country": "uk", name: "Britain"}]
+```

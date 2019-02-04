@@ -10,8 +10,7 @@ sample_list = [
 
 def test_lookups():
     cities = ListLookup(sample_list)
-
-    cities.index("id", lambda d: d['id'], True)
+    cities.index("id", lambda d: d['id'], unique=True)
     cities.index("country", lambda d: d['country'])
 
     assert list(cities.lookup(id=1, preserve_order=True)) == [
@@ -43,3 +42,10 @@ def test_callable_lookup():
     assert result[1]['name'].startswith('B')
 
 
+def test_lookup_terminated():
+    cities = ListLookup(sample_list)
+    cities.index("id", lambda d: d['id'])
+    cities.index("country", lambda d: d['country'])
+
+    result = list(cities.lookup(id=2, country="xx"))
+    assert len(result) == 0
