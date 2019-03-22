@@ -46,7 +46,7 @@ class ListLookup(list):
             unique = (index_name in self._unique_indexes)
 
             if callable(value):
-                res = self._lookup_index_callable(index, value, unique)
+                res = self._lookup_index_callable(index, value, unique, pointers)
             else:
                 res = self._lookup_index(index, value, unique)
 
@@ -73,9 +73,13 @@ class ListLookup(list):
             return set([pointers])
         return pointers
 
-    def _lookup_index_callable(self, index, func, unique):
+    def _lookup_index_callable(self, index, func, unique, subset):
         pointers = set()
         for val, idx in index.items():
+            # Skip items that do not intersect with subset of items from
+            # other indexes
+            if subset and bool(subset & idx) is False:
+                continue
             if func(val) is True:
                 pointers |= idx
                 if unique:
