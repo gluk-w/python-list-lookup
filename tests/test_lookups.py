@@ -1,3 +1,5 @@
+import pytest
+
 from listlookup import ListLookup
 
 sample_list = [
@@ -62,6 +64,39 @@ def test_lookup_nothing_found():
     cities = ListLookup(sample_list)
     cities.index("id", lambda d: d['id'])
     cities.index("country", lambda d: d['country'])
+    cities.index("name", lambda d: d['name'])
 
     result = list(cities.lookup(country="xx"))
     assert len(result) == 0
+
+    result = list(cities.lookup(country='us', name='DC'))
+    assert len(result) == 0
+
+
+def test_lookup_does_not_modify_indexes():
+    """
+    There was a bug that modified index after lookup
+    """
+    cities = ListLookup(sample_list)
+    cities.index("country", lambda d: d['country'])
+    cities.index("name", lambda d: d['name'])
+
+    result = list(cities.lookup(country='us', name='Miami'))
+    assert len(result) == 1
+    
+    second_res = list(cities.lookup(country='us', name='Atlanta'))
+    assert len(second_res) == 1
+
+
+def test_validation():
+    cities = ListLookup(sample_list)
+    cities.index("country", lambda d: d['country'])
+
+    with pytest.raises(ValueError):
+        cities.index("country", lambda d: d['name'])
+
+    with pytest.raises(ValueError):
+        cities.index("preserve_order", lambda d: d['name'])
+
+    with pytest.raises(ValueError):
+        list(cities.lookup(dummy_index='us'))

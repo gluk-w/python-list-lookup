@@ -41,7 +41,7 @@ class ListLookup(list):
             try:
                 index = self._indexes[index_name]
             except KeyError:
-                raise RuntimeError("Index %s does not exist" % index_name)
+                raise ValueError("Index %s does not exist" % index_name)
 
             unique = (index_name in self._unique_indexes)
 
@@ -56,7 +56,11 @@ class ListLookup(list):
             if pointers is None:
                 pointers = res
             else:
-                pointers &= res
+                # `pointers &= res` cannot be used because the variable sometimes
+                # points to the index and should not be modified
+                pointers = pointers.intersection(res)
+                if not pointers:
+                    return  # terminate if intersection returned nothing
 
         if preserve_order:
             pointers = sorted(pointers)
