@@ -48,7 +48,38 @@ def test_callable_lookup():
     assert len(result) == 2
     assert result[0]['name'].startswith('B')
     assert result[1]['name'].startswith('B')
-    assert callback_call_count == 2  #
+    assert callback_call_count == 2
+
+
+def test_index_multiple():
+    cities = ListLookup(sample_list)
+    cities.index('country', lambda d: [d['country'], "%s_a" % d['country'], "%s_b" % d['country']], multiple=True)
+    cities.index('name', lambda d: [d['name'], "1%s" % d['name'], "2%s" % d['name']], multiple=True)
+
+    result = list(cities.lookup(country='uk', name=lambda term: term.startswith('B')))
+    assert len(result) == 2
+    assert result[0]['name'].startswith('B')
+    assert result[1]['name'].startswith('B')
+
+    result = list(cities.lookup(country='uk_a', name="2Bermingham"))
+    assert len(result) == 1
+    assert result[0]['country'] == 'uk'
+    assert result[0]['name'] == 'Bermingham'
+
+
+def test_unique_index_multiple():
+    cities = ListLookup(sample_list)
+    cities.index("id", lambda d: [d['id'], d['id'] * 10], unique=True, multiple=True)
+
+    assert list(cities.lookup(id=1, preserve_order=True)) == [
+        {"id": 1, "country": "us", "name": "Atlanta"}
+    ]
+
+    assert list(cities.lookup(id=10, preserve_order=True)) == [
+        {"id": 1, "country": "us", "name": "Atlanta"}
+    ]
+
+    assert list(cities.lookup(id=2, preserve_order=True))[0]['id'] != 1
 
 
 def test_lookup_terminated():

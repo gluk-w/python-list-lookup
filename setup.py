@@ -60,6 +60,7 @@ setup(
     version=about['__version__'],
     description="""Wrapper for a list of objects that allows to create indexes for faster lookups """,
     long_description=readme + '\n\n' + history,
+    long_description_content_type="text/markdown",
     author='Stan Misiurev',
     author_email='smisiurev@gmail.com',
     url='https://github.com/gluk-w/python-list-lookup',

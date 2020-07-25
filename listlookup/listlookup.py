@@ -1,12 +1,22 @@
+from collections import defaultdict
+
+
 class ListLookup(list):
     def __init__(self, *args, **kwargs):
+        """
+        Initialize just like regular list
+        """
         super().__init__(*args, **kwargs)
         self._indexes = dict()  #
         self._unique_indexes = set()
 
-    def index(self, name, callback, unique=False):
+    def index(self, name, callback, unique=False, multiple=False):
         """
         Create index with given name. Callback must return value for future lookups
+        :param name: unique name of the index
+        :param callback: function that extract value(s) you are going to search by
+        :param unique: indicates that values are unique
+        :param multiple: indicates that each item can be found by multiple values
         """
         if name in self._indexes:
             raise ValueError("Index %s already exists" % name)
@@ -14,15 +24,18 @@ class ListLookup(list):
             raise ValueError("%s cannot be used as index name" % name)
 
         if unique is True:
-            self._indexes[name] = self._unique_index(callback)
+            self._indexes[name] = self._unique_index_multiple(callback) if multiple else self._unique_index(callback)
             self._unique_indexes.add(name)
             return
 
-        pointers = {}
+        if multiple is True:
+            self._indexes[name] = self._nonunique_index_multiple(callback)
+            return
+
+        pointers = defaultdict(set)
         for i, it in enumerate(self):
             val = callback(it)
             # store pointers in lists
-            pointers.setdefault(val, set())
             pointers[val].add(i)
         self._indexes[name] = pointers
 
@@ -34,6 +47,31 @@ class ListLookup(list):
             callback(it): i
             for i, it in enumerate(self)
         }
+
+    def _unique_index_multiple(self, callback):
+        """
+        Build unique index contains only one pointer per value
+        Unlike `.unique_index` this supports multiple values
+        """
+        result = dict()
+        for i, it in enumerate(self):
+            for value in callback(it):
+                result[value] = i
+        return result
+
+    def _nonunique_index_multiple(self, callback):
+        """
+        Build index that contains multiple pointers per value
+        """
+        pointers = defaultdict(set)
+        for i, it in enumerate(self):
+            try:
+                for v in callback(it):
+                    pointers[v].add(i)
+            except TypeError:
+                raise ValueError("Callback must return iterable")
+
+        return pointers
 
     def lookup(self, preserve_order=True, **kwargs):
         pointers = None
